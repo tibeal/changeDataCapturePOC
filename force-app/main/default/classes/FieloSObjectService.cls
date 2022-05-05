@@ -11,10 +11,10 @@ public class FieloSObjectService {
                                     FROM FieloPLT__Action__c
                                     WHERE FieloPLT__RuleTrigger__r.FieloPLT__Object__c = :objectApiName
                                         AND FieloPLT__Active__c = true]) {
-            if (String.isBlank(action.FieloPLT__ConditionField__c)) {
-                hasActionWithoutCondition = true;
-            } else if (!hasActionWithoutCondition){
+            if (String.isNotBlank(action.FieloPLT__ConditionField__c)) {
                 actionFields.add(action.FieloPLT__ConditionField__c);
+            } else if (!hasActionWithoutCondition){
+                hasActionWithoutCondition = true;
             }
         }
 
