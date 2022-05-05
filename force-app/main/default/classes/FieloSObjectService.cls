@@ -4,14 +4,18 @@ public class FieloSObjectService {
         Set<Id> recordIds = new Set<Id>();
 
         String objectApiName = ((EventBus.ChangeEventHeader) events.get(0).get('ChangeEventHeader')).entityName;
+        Boolean hasActionWithoutCondition = false;
         Set<String> actionFields = new Set<String>();
 
         for(FieloPLT__Action__c action : [SELECT FieloPLT__ConditionField__c
                                     FROM FieloPLT__Action__c
                                     WHERE FieloPLT__RuleTrigger__r.FieloPLT__Object__c = :objectApiName
-                                        AND FieloPLT__Active__c = true
-                                        AND FieloPLT__ConditionField__c != null]) {
-            actionFields.add(action.FieloPLT__ConditionField__c);
+                                        AND FieloPLT__Active__c = true]) {
+            if (String.isBlank(action.FieloPLT__ConditionField__c)) {
+                hasActionWithoutCondition = true;
+            } else if (!hasActionWithoutCondition){
+                actionFields.add(action.FieloPLT__ConditionField__c);
+            }
         }
 
         for (SObject event : events) {
@@ -21,7 +25,7 @@ public class FieloSObjectService {
                 recordIds.addAll(new Set<Id>((List<Id>) header.recordIds));
             } else if ((header.changetype == 'UPDATE')) {
                 for (String field : header.changedFields) {
-                    if (actionFields.contains(field) || actionFields.isEmpty()) {
+                    if (actionFields.contains(field) || actionFields.isEmpty() || hasActionWithoutCondition) {
                         recordIds.addAll(new Set<Id>((List<Id>) header.recordIds));
                         break;
                     }
