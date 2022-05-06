@@ -35,7 +35,7 @@ public class FieloSObjectService {
 
         if (!recordIds.isEmpty()) {
             List<Opportunity> records = (List<Opportunity>) Database.query(
-                'SELECT ' + String.join(new List<String>(SObjectType.Opportunity.fields.getMap().keySet()), ',') +
+                'SELECT ' + String.join(new List<String>(Schema.describeSObjects(new List<String>{objectApiName}).get(0).fields.getMap().keySet()), ',') +
                 ' FROM Opportunity WHERE Id IN :recordIds'
             );
 
